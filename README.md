@@ -8,7 +8,20 @@ This paper uses the 2005-2018 versions of the Muestra Continua de Vidas Laborale
 
 ## Overview of Replication Package
 
-There are three parts to the replication package:
+There are three main parts to the replication package:
 - mcvl_data_processing
+  - do
+    - **00_Main.do**: runs all steps 
+    - **01_Past_Info.do**: do file to combine raw files to get base panels of individuals and firms
+    - **02_MergeMCVL_05_12.do** and **02_MergeMCVL_13_latest.do**: do files to merge various components of MCVL
+    - **03_MonthlyVars.do**: do file to compute some monthly data
+    - **04_ReshapeData.do**: do file to reshape contribution data from wide to long
+    - **05_OtherVars.do**: do file to create additional variables pertaining to the census, job types and contract types
+    - **06_01_FixIDs.do**, **06_02_DatosFiscales_Unemp.do**, **06_03_Pensions.do**, and **06_04_Count_Days.do**: do files to generate variables (correct for firm ID changes, sum total income and unemployment benefits from fiscal data, identify individuals receiving a pension, count days worked)
+    - **07_01_Prep_Data_RemoveAllAfter2_NotClustering.do**, …, **07_05_Prep_Data_NoConstraint.do**: do files to generate the final data sets that are inputs to part1_statistics and part2_income_risk
+    - **mainjob_vars.do**: individual do file to identify the main job of an individual in the year and create variables pertaining to that main job
+    - **mcvl_reading_2005.do**, …, **mcvl_reading_2018.do**: individual do files to read in raw data and name variables, called by 00_Main.do
+  - raw 
+    - **bounds.dta**: information needed to identify top-coded and bottom-coded data, collected from annual Boletín Oficial del Estado
 - part1_statistics
 - part2_income_risk: TO BE UPDATED
