@@ -36,7 +36,7 @@ else{
 global miss_earn=1 
 
 //Please change the below to the name of the actual data set
-global datafile="...\out\mcvl_annual_FinalData_pt1_RemoveAllAfter2" 
+global datafile="..." 
 
 // Define the variable names in your dataset.
 global personid_var="person_id" 	// The variable name for person identity number.
@@ -53,7 +53,7 @@ scalar def educ_typ=2   /*Define the type of variable for education 1=string; 2=
 global iso = "ESP" 		// Define the 3-letters code of the country. Use ISO codes. For instance 
 						// for Italy use ITA, for Spain use ESP, for Norway use NOR and so on
 						
-global minnumberobs = 20 // Define the minimum number of observations in a cell. If the min number of obs is not 
+global minnumberobs = 5 // Define the minimum number of observations in a cell. If the min number of obs is not 
 						// satisfied, all moments calculated with that subsample are replaced by missing.
 
 

@@ -7,7 +7,7 @@ library("quantreg") # for quantile regressions
 rm(list = ls())
 
 # Set working directory
-setwd(".../Part2")
+setwd(".../part2_income_risk")
 
 # Save filename
 filename <- paste0("./main_analysis/dta/robust_adj_lin_TS_male_incl2018.dta")

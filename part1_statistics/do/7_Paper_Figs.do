@@ -7,7 +7,7 @@
 clear all
 set more off
 
-global maindir ="...\part1_statistics"
+global maindir =".../part1_statistics/"
 
 // Where the data is stored
 global ineqdata = " 8 Mar 2022 Inequality"                      // Data on Inequality 
@@ -65,11 +65,9 @@ global Tcommon = ${yrlast} - 20 + 1
 	global figden =   "no"			// Density Plots
 
 // Additional tables and figures (spainish team)
-	global figquan2 =  "no"                 // Income growth heterogeneity 
-	global figext =   "no"                  // Density Plots
-	global figext2 = "no" // 8F conditional income 
-    global tabext = "yes"
-    global tabext2 = "yes" // tab occupation by income   
+	global figquan2 =  "no"                 // figquan figure including last quantile -- the top 0.5%
+	global figext =   "no"                  // Percentiles of income growth by year 
+	global figext2 = "no" // mobility figure over 8 years conditional on initial income rank
 
 
 
@@ -2340,125 +2338,8 @@ if "${figext2}" == "yes"{
 
 
 
-/*if "${tabext}" == "yes"{  
-
-if inlist(`yr',${d5yrlist}){				// Has 5yr change (LX Sample)
-			use  male yob educ researn1F`yr' researn5F`yr' arcearn1F`yr' arcearn5F`yr' permearn`yrp' ///
-			using "$maindir${sep}dta${sep}master_sample.dta", clear   
-		}
-}*/
 
 
-if "${tabext2}" == "yes"{  
-
-	
-	global folderfile = "$maindir${sep}figs${sep}${outfolder}${sep}FigsPaper"	
-	
-	use personid male yob educ logearn* using "$maindir${sep}dta${sep}master_sample.dta", clear 
-	drop logearnc*
-	reshape long logearn, i(personid) j(year) 
-	rename personid person_id
-	merge 1:1 person_id year using "$maindir${sep}dta${sep}mcvl_annual_FinalData_pt1_RemoveAllAfter2_morevars.dta", keepusing(sector main_occ)
-	*merge 1:1 person_id year using "/Users/siqiwei/Dropbox/Global_Income_Dynamics_OLD_2022/Part1/dta/mcvl_annual_FinalData_pt1_RemoveAllAfter2_morevars.dta", keepusing(sector main_occ)
-	 
-	tab _merge if !missing(logearn)
-	gen age = year-yob+1
-	tab age if !missing(logearn)
-	
-	* quantiles of income 
-	*xtile rank = logearn, n(100)
-	sum logearn,de
-	local t1 = r(p50) 
-	local t2 = r(p75)
-	local t3 = r(p90)
-	local t4 = r(p95)
-	local t5 = r(p99)
-	sum logearn if logearn > `t5' & !missing(logearn),de
-	local t6 = r(p50)  // 99.5
-	* tab sector
-	di "`t1'"
-	di "`t2'"
-	di "`t3'"
-	di "`t4'"
-	di "`t5'"
-	di "`t6'"
-	
-	
-	tab sector if logearn >= `t1' & logearn < `t2' & !missing(logearn) & sector > 0,matcell(m1)
-	tab sector if logearn >= `t2' & logearn < `t3' & !missing(logearn) & sector > 0,matcell(m2)
-	tab sector if logearn >= `t3' & logearn < `t4' & !missing(logearn) & sector > 0,matcell(m3)
-	tab sector if logearn >= `t4' & logearn < `t5' & !missing(logearn) & sector > 0,matcell(m4)
-	tab sector if logearn >= `t5' & logearn < `t6' & !missing(logearn) & sector > 0,matcell(m5)
-	tab sector if logearn >= `t6' & !missing(logearn) & sector > 0,matcell(m6)
-
-	matrix define table1 = (m1,m2,m3,m4,m5,m6)
-	mata : st_matrix("B", colsum(st_matrix("table1")))
-	forval i = 1/6{	    
-	    forval j = 1/9{
-	        matrix table1[`j',`i'] = table1[`j',`i']/B[1,`i']
-		}
-	}
-		
-	matrix colnames table1 = P50-P75 P75-P90 P90-P95 P95-P99 P99-P995 P995
-	matrix rownames table1 = agri clothing_chemical_car sales_trans_energy construction hotels fin_corporate publicadminis edu_health socialservices
-			
-	esttab matrix(table1, fmt(2)) ///
-		using "${folderfile}/table1_sector.tex", ///
-		noobs nonumber nomtitles align(`=colsof(table1)*"c"') replace
-	* occ
-	tab main_occ if logearn >= `t1' & logearn < `t2' & !missing(logearn) & main_occ > 0,matcell(m1)
-	tab main_occ if logearn >= `t2' & logearn < `t3' & !missing(logearn) & main_occ > 0,matcell(m2)
-	tab main_occ if logearn >= `t3' & logearn < `t4' & !missing(logearn) & main_occ > 0,matcell(m3)
-	tab main_occ if logearn >= `t4' & logearn < `t5' & !missing(logearn) & main_occ > 0,matcell(m4)
-	tab main_occ if logearn >= `t5' & logearn < `t6' & !missing(logearn) & main_occ > 0,matcell(m5)
-	tab main_occ if logearn >= `t6' & !missing(logearn) & main_occ > 0,matcell(m6)
-
-	matrix define table1 = (m1,m2,m3,m4,m5,m6)
-	mata : st_matrix("B", colsum(st_matrix("table1")))
-	forval i = 1/6{	    
-	    forval j = 1/10{
-	        matrix table1[`j',`i'] = table1[`j',`i']/B[1,`i']
-		}
-	}
-		
-	matrix colnames table1 = P50-P75 P75-P90 P90-P95 P95-P99 P99-P995 P995
-	matrix rownames table1 = engi_manager techn_engi_graduate_assis adminis_tech_manager non_grad_assis adminis_officers subordinates adminis_assis first_sec_officer third_class_off_tech labourers
-			
-	esttab matrix(table1, fmt(2)) ///
-		using "${folderfile}/table1_occ.tex", ///
-		noobs nonumber nomtitles align(`=colsof(table1)*"c"') replace
-	
-	* age
-	gen agegp = . 
-	replace agegp = 1 if age <= 34 & agegp == .
-	replace agegp = 2 if age <= 44 & agegp == .
-	replace agegp = 3 if age <= 55 & agegp == .
-	
-	tab agegp if logearn >= `t1' & logearn < `t2' & !missing(logearn) ,matcell(m1)
-	tab agegp if logearn >= `t2' & logearn < `t3' & !missing(logearn) ,matcell(m2)
-	tab agegp if logearn >= `t3' & logearn < `t4' & !missing(logearn) ,matcell(m3)
-	tab agegp if logearn >= `t4' & logearn < `t5' & !missing(logearn) ,matcell(m4)
-	tab agegp if logearn >= `t5' & logearn < `t6' & !missing(logearn) ,matcell(m5)
-	tab agegp if logearn >= `t6' & !missing(logearn),matcell(m6)
-
-	matrix define table1 = (m1,m2,m3,m4,m5,m6)
-	mata : st_matrix("B", colsum(st_matrix("table1")))
-	forval i = 1/6{	    
-	    forval j = 1/3{
-	        matrix table1[`j',`i'] = table1[`j',`i']/B[1,`i']
-		}
-	}
-		
-	matrix colnames table1 = P50-P75 P75-P90 P90-P95 P95-P99 P99-P995 P995
-	matrix rownames table1 = 25-34 35-44 45-55
-			
-	esttab matrix(table1, fmt(2)) ///
-		using "${folderfile}/table1_age.tex", ///
-		noobs nonumber nomtitles align(`=colsof(table1)*"c"') replace
-	
-		
-	
-}
 
 
 

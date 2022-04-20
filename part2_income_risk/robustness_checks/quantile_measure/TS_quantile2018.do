@@ -4,9 +4,9 @@ clear all
 set more off
 capture log close 
 
-global maindir "...\Part2\main_analysis"
-global data "...\Part2\main_analysis\dta"
-global savepath "...\Part2\main_analysis\dta"
+global maindir "...\part2_income_risk\main_analysis"
+global data "...\part2_income_risk\main_analysis\dta"
+global savepath "...\part2_income_risk\main_analysis\dta"
 
 * Parameters
 global aggind TS_quantile

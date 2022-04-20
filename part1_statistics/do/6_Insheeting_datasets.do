@@ -20,17 +20,17 @@ set matsize 800
 cap log close
 
 // Definitions 
-global maindir ="...\part1_statistics"		// Define main directory
+global maindir ="..."		// Define main directory
 do "$maindir/do/0_Initialize.do"	
 global folder="${maindir}${sep}out"
 
 // Please, write her ethe location of the output files
-global ineqdata = " 8 Mar 2022 Inequality"				// Data on Inequality 
-global voladata = " 8 Mar 2022 Volatility"				// Data on Volatility
-global mobidata = " 8 Mar 2022 Mobility"				// Data on Mobility
+global ineqdata = " 6 Apr 2022 Inequality"				// Data on Inequality 
+global voladata = " 6 Apr 2022 Volatility"				// Data on Volatility
+global mobidata = " 6 Apr 2022 Mobility"				// Data on Mobility
 
 // Please, specify where the final csv files are going to be saved 
-global datafran="${folder}${sep}8 Mar 2022 Upload"			// Define were data will be saved
+global datafran="${folder}${sep}6 Apr 2022 Upload"			// Define were data will be saved
 capture noisily mkdir "${datafran}"							// Create the folder	
 
 ****************TAIL INDEX
@@ -259,6 +259,7 @@ erase "$folder${sep}temp2_0.dta"
 ********************************************************************************
 
 foreach vv in permearn researn logearn {
+    *local vv = "logearn"
 	global varx = "`vv'"
 	insheet using "$folder${sep}${ineqdata}${sep}L_${varx}_sumstat.csv",clear	
 	g str3 country="${iso}"
@@ -266,9 +267,21 @@ foreach vv in permearn researn logearn {
 	*Adjust for min number of observations
 	qui: desc mean${varx}-p99_99${varx}, varlist
 	local tvlist = r(varlist)
+	*di "`tvlist'"
 	foreach vvg of local tvlist {
 		qui: replace `vvg' = . if n${varx} < $minnumberobs							
 		}
+		
+	********************** SPAINISH TEAM: ADDED TO REMOVE STATISTICS USING LESS THAN MINNUMBEROBS ******************************* 
+	qui: desc p1${varx}-p99_99${varx}, varlist
+	local tvlist = r(varlist)
+	matrix define qtlist = (0.01,0.025,0.05,0.1,0.125,0.25,0.375,0.5,0.625,0.75,0.875,0.9,0.95,0.975,0.99,0.999,0.9999)
+	local idtemp = 1
+	foreach vvg of local tvlist {
+		qui: replace `vvg' = . if (n${varx} < ${minnumberobs}/qtlist[1,`idtemp']) | (n${varx} < ${minnumberobs}/(1-qtlist[1,`idtemp']))
+		local idtemp = `idtemp' + 1
+		}
+	*****************************************************************************************************************************
 	
 	gen p9010${varx} = p90${varx} - p10${varx}
 	gen p9050${varx} = p90${varx} - p50${varx}
@@ -283,6 +296,7 @@ foreach vv in permearn researn logearn {
 	*sleep 500
 	
 forvalues j=$begin_age(1)$end_age	{
+    *local j = 26
 	insheet using "$folder${sep}${ineqdata}${sep}L_${varx}_age_sumstat.csv",clear	
 	keep if age==`j'
 	
@@ -293,6 +307,16 @@ forvalues j=$begin_age(1)$end_age	{
 	foreach vvg of local tvlist{
 		qui: replace `vvg' = . if n${varx} < $minnumberobs
 	}
+	
+	qui: desc p1${varx}-p99_99${varx}, varlist
+	local tvlist = r(varlist)
+	matrix define qtlist = (0.01,0.025,0.05,0.1,0.125,0.25,0.375,0.5,0.625,0.75,0.875,0.9,0.95,0.975,0.99,0.999,0.9999)
+	local idtemp = 1
+	foreach vvg of local tvlist {
+		qui: replace `vvg' = . if (n${varx} < ${minnumberobs}/qtlist[1,`idtemp']) | (n${varx} < ${minnumberobs}/(1-qtlist[1,`idtemp']))
+		local idtemp = `idtemp' + 1
+		}
+		
 	
 	
 	gen p9010${varx} = p90${varx} - p10${varx}
@@ -316,6 +340,16 @@ forvalues j=0(1)1	{
 	foreach vvg of local tvlist{
 		qui: replace `vvg' = . if n${varx} < $minnumberobs
 	}
+	
+	qui: desc p1${varx}-p99_99${varx}, varlist
+	local tvlist = r(varlist)
+	matrix define qtlist = (0.01,0.025,0.05,0.1,0.125,0.25,0.375,0.5,0.625,0.75,0.875,0.9,0.95,0.975,0.99,0.999,0.9999)
+	local idtemp = 1
+	foreach vvg of local tvlist {
+		qui: replace `vvg' = . if (n${varx} < ${minnumberobs}/qtlist[1,`idtemp']) | (n${varx} < ${minnumberobs}/(1-qtlist[1,`idtemp']))
+		local idtemp = `idtemp' + 1
+	}
+		
 	gen p9010${varx} = p90${varx} - p10${varx}
 	gen p9050${varx} = p90${varx} - p50${varx}
 	gen p5010${varx} = p50${varx} - p10${varx}
@@ -344,6 +378,16 @@ forvalues j=0(1)1	{
 			foreach vvg of local tvlist{
 				qui: replace `vvg' = . if n${varx} < $minnumberobs
 			}
+			
+			qui: desc p1${varx}-p99_99${varx}, varlist
+			local tvlist = r(varlist)
+			matrix define qtlist = (0.01,0.025,0.05,0.1,0.125,0.25,0.375,0.5,0.625,0.75,0.875,0.9,0.95,0.975,0.99,0.999,0.9999)
+			local idtemp = 1
+			foreach vvg of local tvlist {
+			qui: replace `vvg' = . if (n${varx} < ${minnumberobs}/qtlist[1,`idtemp']) | (n${varx} < ${minnumberobs}/(1-qtlist[1,`idtemp']))
+			local idtemp = `idtemp' + 1
+			}
+	
 			
 			gen p9010${varx} = p90${varx} - p10${varx}
 			gen p9050${varx} = p90${varx} - p50${varx}
@@ -500,6 +544,15 @@ foreach ff in 1 5 {
 		qui: replace `vvg' = . if n${varx} < $minnumberobs
 	}
 	
+	qui: desc p1${varx}-p99_99${varx}, varlist
+	local tvlist = r(varlist)
+	matrix define qtlist = (0.01,0.025,0.05,0.1,0.125,0.25,0.375,0.5,0.625,0.75,0.875,0.9,0.95,0.975,0.99,0.999,0.9999)
+	local idtemp = 1
+	foreach vvg of local tvlist {
+	qui: replace `vvg' = . if (n${varx} < ${minnumberobs}/qtlist[1,`idtemp']) | (n${varx} < ${minnumberobs}/(1-qtlist[1,`idtemp']))
+	local idtemp = `idtemp' + 1
+	}
+	
 	gen p9010${varx} = p90${varx} - p10${varx}
 	gen p9050${varx} = p90${varx} - p50${varx}
 	gen p5010${varx} = p50${varx} - p10${varx}
@@ -523,6 +576,14 @@ forvalues j=$begin_age(1)$end_age	{
 	local tvlist = r(varlist)
 	foreach vvg of local tvlist{
 		qui: replace `vvg' = . if n${varx} < $minnumberobs
+	}
+	qui: desc p1${varx}-p99_99${varx}, varlist
+	local tvlist = r(varlist)
+	matrix define qtlist = (0.01,0.025,0.05,0.1,0.125,0.25,0.375,0.5,0.625,0.75,0.875,0.9,0.95,0.975,0.99,0.999,0.9999)
+	local idtemp = 1
+	foreach vvg of local tvlist {
+	qui: replace `vvg' = . if (n${varx} < ${minnumberobs}/qtlist[1,`idtemp']) | (n${varx} < ${minnumberobs}/(1-qtlist[1,`idtemp']))
+	local idtemp = `idtemp' + 1
 	}
 	
 	gen p9010${varx} = p90${varx} - p10${varx}
@@ -548,6 +609,15 @@ forvalues j=0(1)1	{
 	local tvlist = r(varlist)
 	foreach vvg of local tvlist{
 		qui: replace `vvg' = . if n${varx} < $minnumberobs
+	}
+	
+	qui: desc p1${varx}-p99_99${varx}, varlist
+	local tvlist = r(varlist)
+	matrix define qtlist = (0.01,0.025,0.05,0.1,0.125,0.25,0.375,0.5,0.625,0.75,0.875,0.9,0.95,0.975,0.99,0.999,0.9999)
+	local idtemp = 1
+	foreach vvg of local tvlist {
+	qui: replace `vvg' = . if (n${varx} < ${minnumberobs}/qtlist[1,`idtemp']) | (n${varx} < ${minnumberobs}/(1-qtlist[1,`idtemp']))
+	local idtemp = `idtemp' + 1
 	}
 	
 	gen p9010${varx} = p90${varx} - p10${varx}
@@ -577,7 +647,15 @@ forvalues j=0(1)1	{
 			local tvlist = r(varlist)
 			foreach vvg of local tvlist{
 				qui: replace `vvg' = . if n${varx} < $minnumberobs
-			}		
+			}	
+			qui: desc p1${varx}-p99_99${varx}, varlist
+			local tvlist = r(varlist)
+			matrix define qtlist = (0.01,0.025,0.05,0.1,0.125,0.25,0.375,0.5,0.625,0.75,0.875,0.9,0.95,0.975,0.99,0.999,0.9999)
+			local idtemp = 1
+			foreach vvg of local tvlist {
+			qui: replace `vvg' = . if (n${varx} < ${minnumberobs}/qtlist[1,`idtemp']) | (n${varx} < ${minnumberobs}/(1-qtlist[1,`idtemp']))
+			local idtemp = `idtemp' + 1
+			}
 			
 			// HERE
 			gen p9010${varx} = p90${varx} - p10${varx}
@@ -754,7 +832,15 @@ foreach ff in 1 5{
 	local tvlist = r(varlist)
 	foreach vvg of local tvlist{
 		qui: replace `vvg' = . if n${varx} < $minnumberobs
-	}			
+	}	
+	qui: desc p1${varx}-p99_99${varx}, varlist
+	local tvlist = r(varlist)
+	matrix define qtlist = (0.01,0.025,0.05,0.1,0.125,0.25,0.375,0.5,0.625,0.75,0.875,0.9,0.95,0.975,0.99,0.999,0.9999)
+	local idtemp = 1
+	foreach vvg of local tvlist {
+	qui: replace `vvg' = . if (n${varx} < ${minnumberobs}/qtlist[1,`idtemp']) | (n${varx} < ${minnumberobs}/(1-qtlist[1,`idtemp']))
+	local idtemp = `idtemp' + 1
+	}
 	
 	gen p9010${varx} = p90${varx} - p10${varx}
 	gen p9050${varx} = p90${varx} - p50${varx}
@@ -778,7 +864,16 @@ foreach ff in 1 5{
 	local tvlist = r(varlist)
 	foreach vvg of local tvlist{
 		qui: replace `vvg' = . if n${varx} < $minnumberobs
-	}			
+	}	
+	qui: desc p1${varx}-p99_99${varx}, varlist
+	local tvlist = r(varlist)
+	matrix define qtlist = (0.01,0.025,0.05,0.1,0.125,0.25,0.375,0.5,0.625,0.75,0.875,0.9,0.95,0.975,0.99,0.999,0.9999)
+	local idtemp = 1
+	foreach vvg of local tvlist {
+	qui: replace `vvg' = . if (n${varx} < ${minnumberobs}/qtlist[1,`idtemp']) | (n${varx} < ${minnumberobs}/(1-qtlist[1,`idtemp']))
+	local idtemp = `idtemp' + 1
+	}
+			
 	
 	gen p9010${varx} = p90${varx} - p10${varx}
 	gen p9050${varx} = p90${varx} - p50${varx}
@@ -805,7 +900,17 @@ foreach ff in 1 5{
 		local tvlist = r(varlist)
 		foreach vvg of local tvlist{
 			qui: replace `vvg' = . if n${varx} < $minnumberobs
-		}	
+		}
+		
+		qui: desc p1${varx}-p99_99${varx}, varlist
+		local tvlist = r(varlist)
+		matrix define qtlist = (0.01,0.025,0.05,0.1,0.125,0.25,0.375,0.5,0.625,0.75,0.875,0.9,0.95,0.975,0.99,0.999,0.9999)
+		local idtemp = 1
+		foreach vvg of local tvlist {
+		qui: replace `vvg' = . if (n${varx} < ${minnumberobs}/qtlist[1,`idtemp']) | (n${varx} < ${minnumberobs}/(1-qtlist[1,`idtemp']))
+		local idtemp = `idtemp' + 1
+		}
+			
 		
 		gen p9010${varx} = p90${varx} - p10${varx}
 		gen p9050${varx} = p90${varx} - p50${varx}
@@ -836,6 +941,14 @@ foreach ff in 1 5{
 		foreach vvg of local tvlist{
 			qui: replace `vvg' = . if n${varx} < $minnumberobs
 		}	
+		qui: desc p1${varx}-p99_99${varx}, varlist
+		local tvlist = r(varlist)
+		matrix define qtlist = (0.01,0.025,0.05,0.1,0.125,0.25,0.375,0.5,0.625,0.75,0.875,0.9,0.95,0.975,0.99,0.999,0.9999)
+		local idtemp = 1
+		foreach vvg of local tvlist {
+		qui: replace `vvg' = . if (n${varx} < ${minnumberobs}/qtlist[1,`idtemp']) | (n${varx} < ${minnumberobs}/(1-qtlist[1,`idtemp']))
+		local idtemp = `idtemp' + 1
+		}
 		
 		gen p9010${varx} = p90${varx} - p10${varx}
 		gen p9050${varx} = p90${varx} - p50${varx}
