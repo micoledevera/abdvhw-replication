@@ -35,6 +35,16 @@ There are three main parts to the replication package:
   - **8_Part1_paper_table.do**: Generate summary statistics tables (F2-F12)
 - part2_income_risk
   - main_analysis
+    - do
+	  - **1_Merge_gdp_unemp.do**: Merge the national and provincial level unemployment rate and gdp with the main dataset
+	  - **2_Disposable_income.do**: Generate disposable income
+	  - **3_part2_poisson_main.do**: Main file to compute (1) baseline CV measure and (2) CV measure with cluster
+	  - **4_part2_all_tab_figs.do**: Produce figures and tables in part 2
+	  - **5_bootstrap.do**: Bootstrap baseline model to compute standard errors of the second stage regression (absolute deviation)
+	  - CV: folder containing other complementary codes
+	- dta
+	  - **effective_tax_rate.csv**: Effective tax rates collected from annual editions of Manual Práctico Renta y Patrimonio
+	  - **National.dta** and **Province.dta**: National and provincial macroeconomic variables collected from Instituto Nacional de Estadística (INE)
   - robustness_checks
     - neural_net
 	  - **01_neuralnet_poisson_modelselect_quantiles_noclust_catcherror.R** and **02_neuralnet_poisson_modelselect_quantiles_noclust_catcherror_absdev.R**: Estimate multiple models for grid search to select hyperparameters of neural net
