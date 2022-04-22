@@ -2,19 +2,6 @@
 * The main file 
 *clear all
 set more off
-** USE DATA
-*use "$savepath\mcvl_annual_FinalData_pt2_${spl}.dta", clear // already merge with unemp and gdp
-
-** KEEP ONE OF THE SEXES
-*keep if sex == $chosen_sex
-
-
-** GENERATE VARIABLES
-* Dummies for education
-
-			// no agesq_TS
-* !!! removed age_sq * aggind 			
-
 
 									
 ** FIRST STAGE: CONDITIONAL MEAN BY EXPONENTIAL REGRESSION
@@ -38,19 +25,13 @@ gen y_dev2 = (${inc_var} - cond_mean)^2
 sum y_dev2,detail
 ** SAVE DATA
 compress
-//save "$savepath\IR_moment_cvar_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml2018.dta", replace
-
-
 
 ** SECOND STAGE (absCV): ABSOLUTE DEVIATION BY EXPONENTIAL REGRESSION
 * Generate residuals and variance
 gen absdev = abs(${inc_var} - cond_mean)
 * Estimate exponential regression
 ppmlhdfe absdev ${vars},vce(cluster person_id) //if est_sample == 1  
-*eststo modelabs
-*esttab modelmean modelabs  ///
-*		using "C:\Users\s-wei-29\Dropbox\Global_Income_Dynamics\Part2\out\paper_tab_figs_05Mar2021/TS_coef_vcecluster.tex", ///
-*		se nostar replace
+
 
 * Predict conditional variance
 predict cond_absdev, mu
@@ -75,12 +56,6 @@ centile cvar_m_abs, centile(1 5 10 25 50 75 90 95 99)
 tab year ageg, summarize(cvar_m_abs)
 
 
-
-** SAVE DATA
-*compress
-//save "$savepath\IR_moment_cvar_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml2018.dta", replace
-
-*preserve
 * Save all matrices
 matrix define coefs = coefs1 \ coefs2_abs   // \ coefs2_sq
 matrix coln coefs = `e(params)'
@@ -94,13 +69,6 @@ mat coln coefs= `names'
 		
 svmat coefs, names(col)
 outsheet using "$savepath\IR_moment_cvar_coefs_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml2018_bts${bts}.csv", replace comma
-
-
-
-*restore
-
-
-*log close
 
 
 

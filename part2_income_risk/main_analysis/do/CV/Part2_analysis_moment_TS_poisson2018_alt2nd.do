@@ -5,7 +5,7 @@ set more off
 global aggind TS_ppml
 capture log close 
 
-log using "$maindir\risk_measure\log\momentbased_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml2018_alt2nd", text replace
+log using "$maindir\log\momentbased_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml2018_alt2nd", text replace
 
 
 * use 1st step result 
@@ -29,24 +29,14 @@ global vars log_${inc_var}_lag log_${inc_var}_lag_h2 log_${inc_var}_lag_h3 tot_i
 * Generate residuals and variance
 gen cv = abs(${inc_var} - cond_mean)/cond_mean
 * Estimate exponential regression
-ppmlhdfe cv ${vars},vce(cluster person_id) //if est_sample == 1  
-/*eststo modelabs
-esttab modelmean modelabs  ///
-		using "C:\Users\s-wei-29\Dropbox\Global_Income_Dynamics\Part2\out\paper_tab_figs_05Mar2021/TS_coef_vcecluster.tex", ///
-		se nostar replace
-*/
+ppmlhdfe cv ${vars},vce(cluster person_id) 
 * Predict conditional variance
 capture drop cvar_m_abs
 predict cvar_m_abs, mu
 
 capture drop L_abs
-*gen L_abs = absdev*log(cond_absdev) - cond_absdev
 
 matrix define coefs2_abs = e(b)
-** COMPUTE INCOME RISK MEASURE `log(sigma) - log(mu)'
-*gen cvar_m_abs = cond_absdev / cond_mean
-** Make age groups 
-********** ANALYSIS
 * Quantiles of the cvar
 centile cvar_m_abs, centile(1 5 10 25 50 75 90 95 99)
 * Quantiles of cvar by age and year

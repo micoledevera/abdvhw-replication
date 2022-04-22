@@ -5,7 +5,7 @@ set more off
 global aggind TS_ppml
 capture log close 
 
-log using "$maindir\risk_measure\log\momentbased_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml_inconly", text replace
+log using "$maindir\log\momentbased_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml_inconly", text replace
 
 
 ** USE DATA
@@ -91,8 +91,7 @@ order person_id year ${inc_var} ${inc_var}_lag age age_sq educ* days_lag1 oow_in
 			age_prt agesq_prt ///   *age_yr_* agesq_yr_*
 			age_inclag* agesq_inclag* age_incdum agesq_incdum ///
 			unemployment*_lag* age_unemployment*_lag* ///
-			gdp*_lag* age_gdp*_lag*
-			// no agesq_TS
+			gdp*_lag* age_gdp*_lag*	
 
 ** with agg indicator		
 global vars log_${inc_var}_lag tot_inc_lag_dum 
@@ -100,7 +99,7 @@ global vars log_${inc_var}_lag tot_inc_lag_dum
 
 									
 ** FIRST STAGE: CONDITIONAL MEAN BY EXPONENTIAL REGRESSION
-ppmlhdfe ${inc_var} ${vars} if est_sample == 1  //,initial(ini_guess)		
+ppmlhdfe ${inc_var} ${vars} if est_sample == 1  
 * Predict conditional mean
 predict cond_mean, mu
 
@@ -123,7 +122,7 @@ save "$savepath\IR_moment_cvar_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson
 ** SECOND STAGE (absCV): ABSOLUTE DEVIATION BY EXPONENTIAL REGRESSION
 rename cond_mean cond_mean_inconly
 capture drop _merge
-merge 1:1 person_id year using "${dropbox}\Global_Income_Dynamics\Part2\moment\dta\IR_moment_cvar_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml.dta",keepusing(cond_mean)
+merge 1:1 person_id year using "${maindir}\dta\IR_moment_cvar_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml.dta",keepusing(cond_mean)
 drop if _merge == 2
 drop _merge
 
@@ -132,8 +131,6 @@ rename cond_mean_inconly cond_mean
 gen absdev = abs(${inc_var} - cond_mean_TS)
 
 
-* Generate residuals and variance
-*gen absdev = abs(${inc_var} - cond_mean)
 * Estimate exponential regression
 ppmlhdfe absdev ${vars} if est_sample == 1  
 * Predict conditional variance
@@ -163,22 +160,6 @@ tab year ageg, summarize(cvar_m_abs)
 ** SAVE DATA
 compress
 save "$savepath\IR_moment_cvar_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml_inconly.dta", replace
-
-// preserve
-// * Save all matrices
-// matrix define coefs = coefs1 \ coefs2_abs   // \ coefs2_sq
-// matrix coln coefs = `e(params)'
-// clear
-//
-// local names: colnames coefs
-// di "`names'"
-// local names: subinstr local names "_cons" "cons"
-// di "`names'"
-// mat coln coefs= `names'
-//
-// svmat coefs, names(col)
-// outsheet using "$savepath\IR_moment_cvar_coefs_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml_inconly.csv", replace comma
-// restore
 
 
 log close

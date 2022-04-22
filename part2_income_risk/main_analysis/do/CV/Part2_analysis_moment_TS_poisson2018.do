@@ -5,7 +5,7 @@ set more off
 global aggind TS_ppml
 capture log close 
 
-log using "$maindir\risk_measure\log\momentbased_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml2018", text replace
+log using "$maindir\log\momentbased_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml2018", text replace
 
 
 ** USE DATA
@@ -92,7 +92,6 @@ order person_id year ${inc_var} ${inc_var}_lag age age_sq educ* days_lag1 oow_in
 			age_inclag* agesq_inclag* age_incdum agesq_incdum ///
 			unemployment*_lag* age_unemployment*_lag* ///
 			gdp*_lag* age_gdp*_lag*
-			// no agesq_TS
 
 ** with agg indicator		
 global vars log_${inc_var}_lag log_${inc_var}_lag_h2 log_${inc_var}_lag_h3 tot_inc_lag_dum age age_sq /// 
@@ -105,13 +104,10 @@ global vars log_${inc_var}_lag log_${inc_var}_lag_h2 log_${inc_var}_lag_h3 tot_i
 			age_inclag agesq_inclag age_inclag2 agesq_inclag2 age_inclag3 agesq_inclag3 /// 
 			age_incdum agesq_incdum unemployment*_lag* age_unemployment*_lag* ///
 			gdp*_lag* age_gdp*_lag* // 
-			// no agesq_TS
-* !!! removed age_sq * aggind 			
-
-
+		
 									
 ** FIRST STAGE: CONDITIONAL MEAN BY EXPONENTIAL REGRESSION
-ppmlhdfe ${inc_var} ${vars},vce(cluster person_id) //if est_sample == 1  //,initial(ini_guess)		
+ppmlhdfe ${inc_var} ${vars},vce(cluster person_id) 
 * Predict conditional mean
 eststo modelmean
 predict cond_mean, mu
@@ -139,11 +135,7 @@ save "$savepath\IR_moment_cvar_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson
 * Generate residuals and variance
 gen absdev = abs(${inc_var} - cond_mean)
 * Estimate exponential regression
-ppmlhdfe absdev ${vars},vce(cluster person_id) //if est_sample == 1  
-*eststo modelabs
-*esttab modelmean modelabs  ///
-*		using "C:\Users\s-wei-29\Dropbox\Global_Income_Dynamics\Part2\out\paper_tab_figs_05Mar2021/TS_coef_vcecluster.tex", ///
-*		se nostar replace
+ppmlhdfe absdev ${vars},vce(cluster person_id) 
 
 * Predict conditional variance
 predict cond_absdev, mu
@@ -172,23 +164,6 @@ tab year ageg, summarize(cvar_m_abs)
 ** SAVE DATA
 compress
 save "$savepath\IR_moment_cvar_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml2018.dta", replace
-
-// preserve
-// * Save all matrices
-// matrix define coefs = coefs1 \ coefs2_abs   // \ coefs2_sq
-// matrix coln coefs = `e(params)'
-// clear
-//
-// local names: colnames coefs
-// di "`names'"
-// local names: subinstr local names "_cons" "cons"
-// di "`names'"
-// mat coln coefs= `names'
-//
-// svmat coefs, names(col)
-// outsheet using "$savepath\IR_moment_cvar_coefs_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml2018.csv", replace comma
-// restore
-
 
 log close
 

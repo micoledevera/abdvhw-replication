@@ -1,10 +1,10 @@
 clear all
 set more off
 global sep="/"
-global maindir ="C:\Users\s-wei-29\Dropbox\Global_Income_Dynamics\Part2\main_analysis"
-global maindir_part1 ="C:\Users\s-wei-29\Dropbox\Global_Income_Dynamics\Part1" 
-*global maindir ="/Users/siqiwei/Dropbox/Global_Income_Dynamics/Part2/main_analysis"
-*global maindir_part1 ="/Users/siqiwei/Dropbox/Global_Income_Dynamics/Part1" 
+global maindir ="...\part2_income_risk\main_analysis"
+global maindir_part1 ="...\part1_statistics" 
+
+
 cd "$maindir/out"
 // Where the firgures are going to be saved 
 global outfolder="paper_tab_figs_05Mar2021"			

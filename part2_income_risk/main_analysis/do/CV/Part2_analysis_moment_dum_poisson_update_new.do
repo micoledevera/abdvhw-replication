@@ -5,7 +5,7 @@ set more off
 global aggind TS_ppml
 capture log close 
 
-log using "$maindir\risk_measure\log\momentbased_dum_${cname}_${chosen_sex}_${inc_var}_poisson_ppml_update2016", text replace
+log using "$maindir\log\momentbased_dum_${cname}_${chosen_sex}_${inc_var}_poisson_ppml_update2016", text replace
 
 ** USE DATA
 use "$savepath\mcvl_annual_FinalData_pt2_RemoveAllAfter2.dta", clear // already merge with unemp and gdp
@@ -13,7 +13,7 @@ use "$savepath\mcvl_annual_FinalData_pt2_RemoveAllAfter2.dta", clear // already 
 ** KEEP ONE OF THE SEXES
 keep if sex == $chosen_sex
 ** Merge with clusters
-merge m:1 person_id using "${maindir}\risk_measure\dta\\${cfile_mean}.dta"
+merge m:1 person_id using "${maindir}\dta\\${cfile_mean}.dta"
 di "${cfile_mean}"
 drop if _merge == 2
 
@@ -119,8 +119,7 @@ global vars log_${inc_var}_lag log_${inc_var}_lag_h2 log_${inc_var}_lag_h3 tot_i
 			age_incdum agesq_incdum unemployment*_lag* age_unemployment*_lag* ///			
 			gdp*_lag* age_gdp*_lag* ///
 			clust2-clust${n_clust} age_clust_2-age_clust_${n_clust} agesq_clust_2-agesq_clust_${n_clust} //
-
-			* remove agesq* agg ind
+			
 			 
 									
 ** FIRST STAGE: CONDITIONAL MEAN BY EXPONENTIAL REGRESSION
@@ -205,10 +204,8 @@ forvalues c = 1/$n_clust {
 }
 
 
-*compress
-*save "$savepath\IR_moment_cvar_dum_${cname}_${chosen_sex}_${inc_var}_poisson_ppml_update2016.dta", replace
 *********************************************************************************************************************
-*use "$savepath\IR_moment_cvar_dum_${cname}_${chosen_sex}_${inc_var}_poisson_ppml_5update_meanonly.dta", clear
+
 ppmlhdfe ${inc_var} ${vars} if est_sample_clust == 1 
 predict cond_mean if est_sample_clust != 0 , mu
 
@@ -231,11 +228,11 @@ save "$savepath\IR_moment_cvar_dum_${cname}_${chosen_sex}_${inc_var}_poisson_ppm
 ** SECOND STAGE (absCV): ABSOLUTE DEVIATION BY EXPONENTIAL REGRESSION
 * Generate residuals and variance
 
-use "$savepath\IR_moment_cvar_dum_${cname}_${chosen_sex}_${inc_var}_poisson_ppml_update2016.dta", clear
+*use "$savepath\IR_moment_cvar_dum_${cname}_${chosen_sex}_${inc_var}_poisson_ppml_update2016.dta", clear
 
 rename cond_mean cond_mean_cluster
 capture drop _merge
-merge 1:1 person_id year using "${maindir}\risk_measure\dta\IR_moment_cvar_TS_ppml_1_tot_inc_RemoveAllAfter2_poisson_ppml2016.dta",keepusing(cond_mean)
+merge 1:1 person_id year using "${maindir}\dta\IR_moment_cvar_TS_ppml_1_tot_inc_RemoveAllAfter2_poisson_ppml2016.dta",keepusing(cond_mean)
 drop if _merge == 2
 drop _merge
 
@@ -245,7 +242,7 @@ gen absdev = abs(${inc_var} - cond_mean_TS)
 
 
 drop cluster
-merge m:1 person_id using "${maindir}\risk_measure\dta\\${cfile_absdev}.dta"
+merge m:1 person_id using "${maindir}\dta\\${cfile_absdev}.dta"
 
 di "${cfile_absdev}"
 drop if _merge == 2
@@ -353,17 +350,12 @@ forvalues c = 1/$n_clust {
 
 
 ***********************************************************************
-*gen absdev_wins = absdev
-*sum absdev, detail
-*replace absdev_wins = `r(p99)' if absdev > `r(p99)' & !missing(absdev_wins)
 * Estimate exponential regression
 ppmlhdfe absdev ${vars} if est_sample_clust == 1
 predict cond_absdev if est_sample_clust != 0 , mu
 
 
 ***********************************************************************
-*poisson absdev ${vars} if est_sample == 1
-* Predict conditional variance
 *predict cond_absdev, mu
 matrix define coefs2_abs = e(b)
 ** COMPUTE INCOME RISK MEASURE `log(sigma) - log(mu)'

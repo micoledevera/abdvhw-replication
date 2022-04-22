@@ -1,7 +1,7 @@
 * CONSTRUCT DISPOSABLE INCOME
 clear all
 set more off
-global maindir "/Users/siqiwei/Dropbox/Global_Income_Dynamics/Part2/risk_measure"
+global maindir ".../part2_income_risk/main_analysis"
 global aggind TS
 capture log close 
 

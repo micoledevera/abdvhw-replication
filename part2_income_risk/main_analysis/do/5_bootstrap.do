@@ -1,14 +1,11 @@
 clear 
 set more off
-*global mmdir "/Users/siqiwei/Dropbox/Global_Income_Dynamics/Part2/main_analysis/do"
-*global maindir "/Users/siqiwei/Dropbox/Global_Income_Dynamics/Part2"
-*global savepath "/Users/siqiwei/Dropbox/Global_Income_Dynamics/Part2/main_analysis/dta"
-global mmdir "C:\Users\s-wei-29\Dropbox\Global_Income_Dynamics\Part2\main_analysis\do"
-global maindir "C:\Users\s-wei-29\Dropbox\Global_Income_Dynamics\Part2"
-global savepath "C:\Users\s-wei-29\Dropbox\Global_Income_Dynamics\Part2\main_analysis\dta"
+
+global mmdir "...\part2_income_risk\main_analysis\do"
+global maindir "...\part2_income_risk"
+global savepath "...\part2_income_risk\main_analysis\dta"
 
 global aggind TS_ppml
-
 
 
 *Select income measure
@@ -20,7 +17,7 @@ global inc_var  tot_inc
 global chosen_sex = 1 
 global spl = "RemoveAllAfter2_NotClustering"
 capture log close 
-log using "$maindir\risk_measure\log\bootstrap_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml2018", text replace
+log using "$maindir\log\bootstrap_${aggind}_${chosen_sex}_${inc_var}_${spl}_poisson_ppml2018", text replace
 
 ** BOOTSTRAP -- BASELINE
 use "$savepath\mcvl_annual_FinalData_pt2_${spl}.dta", clear // already merge with unemp and gdp

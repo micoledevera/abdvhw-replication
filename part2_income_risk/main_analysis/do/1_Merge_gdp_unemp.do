@@ -6,10 +6,10 @@ clear all
 set more off
 
 
-global maindir "/Users/siqiwei/Dropbox/Global_Income_Dynamics/Part2/risk_measure"
-global data "/Users/siqiwei/Dropbox/Global_Income_Dynamics_OLD_2022/Part1/dta"
+global maindir ".../part2_income_risk/main_analysis"
+global data ".../mcvl_data_processing/out"
 capture log close 
-log using "$data\Merge_gdp_unemp", text replace
+log using "${maindir}/log/Merge_gdp_unemp", text replace
 
 
 

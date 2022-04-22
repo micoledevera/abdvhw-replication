@@ -1,7 +1,7 @@
 clear 
-global mmdir "C:\Users\s-wei-29\Dropbox\Global_Income_Dynamics\Part2\main_analysis\do"
-global maindir "C:\Users\s-wei-29\Dropbox\Global_Income_Dynamics\Part2"
-global savepath "C:\Users\s-wei-29\Dropbox\Global_Income_Dynamics\Part2\main_analysis\dta"
+global mmdir "...\part2_income_risk\main_analysis\do"
+global maindir "...\part2_income_risk"
+global savepath "...\part2_income_risk\main_analysis\dta"
 
 *Select income measure
 * tot_inc: total pre-tax income
