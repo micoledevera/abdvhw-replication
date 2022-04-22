@@ -1,6 +1,6 @@
 # Replication files for "Income Risk Inequality: Evidence from Spanish Administrative Records" by Arellano, Bonhomme, De Vera, Hospido, and Wei
 
-29/03/2022: This repository currently includes the codes to process the raw social security data, and obtain results for the first part of the paper where we compute various statistics on income dynamics common across all the countries in the [Global Repository of Income Dynamics (GRID)](https://mebdi.org/global-repository-income-dynamics). Soon, we will update this repository to include the codes to obtain results relating to the inequality of income risk.
+This repository includes the codes to process the raw social security data and replicate the results in "Income Risk Inequality: Evidence from Spanish Administrative Records". In the first part of the paper, we compute various statistics on income dynamics common across all the countries in the [Global Repository of Income Dynamics (GRID)](https://mebdi.org/global-repository-income-dynamics). In the second part of the paper, we construct individual measures of income risk and document inequality in income risk. 
 
 ## Muestra Continua de Vidas Laborales
 
